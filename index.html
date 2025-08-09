@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman</title>
+    
+    <!-- Version tracking -->
+    <meta name="version" content="2.1.0">
+    <meta name="build-date" content="2025-08-09">
+    
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body class="start-screen">
+    <div class="container">
+        <header>
+            <h1>Hangman</h1>
+            <p>Test your knowledge across academic disciplines!</p>
+            <div class="version-info">Version: 2.1.0</div>
+        </header>
+        
+        <div class="sound-controls">
+            <div class="sound-btn" id="sound-toggle">🔊</div>
+            <div class="sound-btn" id="music-toggle">🎵</div>
+        </div>
+        
+        <main class="game-container">
+            <div class="scoreboard">
+                <div class="score-item">
+                    <div>Wins</div>
+                    <div id="wins-counter">0</div>
+                </div>
+                <div class="score-item">
+                    <div>Losses</div>
+                    <div id="losses-counter">0</div>
+                </div>
+                <div class="score-item">
+                    <div>Guesses Left</div>
+                    <div id="guesses-counter">6</div>
+                </div>
+            </div>
+            
+            <div class="hangman-container">
+                <div class="hangman-box">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Hangman-0.png" alt="Hangman" class="hangman-image" id="hangman-image">
+                </div>
+            </div>
+            
+            <div class="word-display" id="word-display">
+                <!-- Word will appear here -->
+            </div>
+            
+            <div class="letters-container" id="letters-container">
+                <!-- Letters will be generated here -->
+            </div>
+            
+            <div class="game-end win-message" id="win-message">
+                <h3>🎉 Congratulations! You Won! 🎉</h3>
+                <p>The word was: <strong id="win-word"></strong></p>
+                <div class="controls">
+                    <button class="btn btn-success" id="play-again-btn">Play Again</button>
+                    <button class="btn btn-primary" id="new-subject-btn">New Subject</button>
+                </div>
+            </div>
+            
+            <div class="game-end lose-message" id="lose-message">
+                <h3>☠️ Game Over! ☠️</h3>
+                <p>The word was: <strong id="lose-word"></strong></p>
+                <div class="controls">
+                    <button class="btn btn-success" id="try-again-btn">Try Again</button>
+                    <button class="btn btn-warning" id="change-subject-btn">Change Subject</button>
+                </div>
+            </div>
+            
+            <div class="subject-selector" id="subject-selector">
+                <h2 class="subject-title">Select an Academic Subject</h2>
+                <div class="subject-grid">
+                    <div class="subject-card" data-subject="accounting">
+                        <h3>Accounting</h3>
+                        <p>Financial terms and concepts</p>
+                    </div>
+                    <div class="subject-card" data-subject="biology">
+                        <h3>Biology</h3>
+                        <p>Life sciences and organisms</p>
+                    </div>
+                    <div class="subject-card" data-subject="building">
+                        <h3>Building</h3>
+                        <p>Construction and architecture</p>
+                    </div>
+                    <div class="subject-card" data-subject="chemistry">
+                        <h3>Chemistry</h3>
+                        <p>Elements and reactions</p>
+                    </div>
+                    <div class="subject-card" data-subject="law">
+                        <h3>Law</h3>
+                        <p>Legal terms and concepts</p>
+                    </div>
+                    <div class="subject-card" data-subject="medicine">
+                        <h3>Medicine</h3>
+                        <p>Medical terminology</p>
+                    </div>
+                    <div class="subject-card" data-subject="physics">
+                        <h3>Physics</h3>
+                        <p>Forces and energy</p>
+                    </div>
+                    <div class="subject-card" data-subject="vetMed">
+                        <h3>Veterinary Medicine</h3>
+                        <p>Animal health and care</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3>How to Play Academic Hangman</h3>
+                <ul>
+                    <li>Select an academic subject from the options above to start the game</li>
+                    <li>Click on letters to guess the hidden word related to your chosen subject</li>
+                    <li>Each incorrect guess will add a part to the hangman figure</li>
+                    <li>You have 6 incorrect guesses before the game ends</li>
+                    <li>Try to guess the word before the hangman is complete to win!</li>
+                </ul>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Hangman By A. A. Aliyu &copy; 2025 | Version 2.1.0</p>
+        </footer>
+    </div>
+
+    <!-- Sound Effects -->
+    <audio id="correct-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3"></audio>
+    <audio id="incorrect-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+    <audio id="win-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+    <audio id="lose-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-losing-drums-2023.mp3"></audio>
+    <audio id="button-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3"></audio>
+    <audio id="background-music" loop src="https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-667.mp3"></audio>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
