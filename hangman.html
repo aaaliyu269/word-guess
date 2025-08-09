@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman</title>
+    
+    <!-- Favicon Generator Links -->
+    <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
+    <meta name="theme-color" content="#4CAF50">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #333;
+        }
+
+        body.start-screen-background {
+            background-image: url('https://images.unsplash.com/photo-1510525000596-f94e1d3e8e7a');
+        }
+
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .hangman-container img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 20px;
+        }
+
+        .word-display-container h2 {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 5px;
+            font-size: 2em;
+            margin: 20px 0;
+        }
+
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .letter-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .letter-button:hover:not(.disabled) {
+            background-color: #45a049;
+        }
+
+        .letter-button.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #game-end-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+        }
+
+        #game-end-message p {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        #play-again-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #play-again-button:hover {
+            background-color: #0056b3;
+        }
+
+        .scoreboard-container {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .subject-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #subjects {
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        #start-screen {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        #start-screen h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        #start-screen p {
+            font-size: 1.2em;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .subject-selector-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #start-game-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #start-game-button:hover:not(:disabled) {
+            background-color: #218838;
+        }
+
+        #start-game-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        hr {
+            width: 50%;
+            margin: 20px auto;
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+        }
+
+        /* Subject backgrounds */
+        body.subject-accounting {
+            background-image: url('https://images.unsplash.com/photo-1550565118-2e1d2c943e1f');
+        }
+
+        body.subject-biology {
+            background-image: url('https://images.unsplash.com/photo-1549449830-74d32095df7b');
+        }
+
+        body.subject-building {
+            background-image: url('https://images.unsplash.com/photo-1552960566-a367469a924b');
+        }
+
+        body.subject-chemistry {
+            background-image: url('https://images.unsplash.com/photo-1587351659992-0b1a134a4b4b');
+        }
+
+        body.subject-law {
+            background-image: url('https://images.unsplash.com/photo-1542171440-62287957386d');
+        }
+
+        body.subject-medicine {
+            background-image: url('https://images.unsplash.com/photo-1530026310237-7589ed971d24');
+        }
+
+        body.subject-physics {
+            background-image: url('https://images.unsplash.com/photo-1596768783424-2c672b144b1c');
+        }
+
+        body.subject-vetMed {
+            background-image: url('https://images.unsplash.com/photo-1599814403309-8c6f1d2c6c06');
+        }
+
+        /* Install button */
+        #install-button {
+            background-color: #ff6f00;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #install-button:hover {
+            background-color: #e65100;
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <h1>Welcome to Hangman!</h1>
+        <p>A simple game of guessing words based on different subjects.</p>
+        <p>Your goal is to guess the hidden word by picking letters of the alphabet.</p>
+        <p>Each incorrect guess adds a part to the hangman. You have six wrong guesses before the game ends!</p>
+
+        <hr>
+
+        <div class="subject-selector-container">
+            <label for="subjects">Select a Subject to begin:</label>
+            <select id="subjects">
+                <option value="" disabled selected>Select a Subject</option>
+                <option value="accounting">Accounting</option>
+                <option value="biology">Biology</option>
+                <option value="building">Building</option>
+                <option value="chemistry">Chemistry</option>
+                <option value="law">Law</option>
+                <option value="medicine">Medicine</option>
+                <option value="physics">Physics</option>
+                <option value="vetMed">Veterinary Medicine</option>
+            </select>
+            <button id="start-game-button" disabled>Start Game</button>
+        </div>
+        
+        <button id="install-button">Install App</button>
+    </div>
+
+    <div id="game-screen" style="display:none;">
+        <h1>Hangman</h1>
+
+        <div class="scoreboard-container">
+            <p>Wins: <span id="wins-counter">0</span></p>
+            <p>Losses: <span id="losses-counter">0</span></p>
+        </div>
+
+        <p>Guess the word!</p>
+
+        <div class="game-container">
+            <div class="hangman-container">
+                <img id="hangman-image" src="images/Hangman_0.png" alt="Hangman" />
+            </div>
+            
+            <div class="word-display-container">
+                <h2 id="word-display"></h2>
+            </div>
+
+            <div class="letters-container" id="letters-container">
+                <!-- Alphabet buttons will be generated here -->
+            </div>
+        </div>
+
+        <div id="game-end-message" style="display:none;">
+            <p id="game-message"></p>
+            <button id="play-again-button">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const wordsBySubject = {
+            accounting: [
+                "ASSET", "LIABILITY", "EQUITY", "DEBIT", "CREDIT", "REVENUE",
+                "EXPENSE", "JOURNAL", "LEDGER", "BALANCE", "ACCOUNT", "FINANCE",
+                "BUDGET", "FISCAL", "AUDIT", "INCOME", "TAXES", "RECEIVABLE",
+                "PAYABLE", "DEPRECIATION", "PROFIT", "LOSS"
+            ],
+            biology: [
+                "CELL", "GENE", "DNA", "PROTEIN", "PHOTOSYNTHESIS", "ORGANISM",
+                "ECOSYSTEM", "HEREDITY", "EVOLUTION", "MITOCHONDRIA", "CHLOROPLAST",
+                "NUCLEUS", "BACTERIA", "VIRUS", "SPECIES", "BIOSPHERE",
+                "RESPIRATION", "POPULATION", "MUTATION", "ENZYME", "CHROMOSOME"
+            ],
+            building: [
+                "CONCRETE", "FOUNDATION", "SCAFFOLD", "PLUMBING", "CARPENTRY",
+                "WIRING", "BRICKLAYING", "ROOFING", "MASONRY", "INSULATION",
+                "PLANNING", "BLUEPRINT", "SQUARE", "LEVEL", "HAMMER", "NAIL",
+                "GIRDER", "TRUSS", "DRYWALL", "DUCTWORK", "FAUCET", "GUTTER"
+            ],
+            chemistry: [
+                "ELEMENT", "ATOM", "MOLECULE", "BONDING", "CATALYST", "SOLUTION",
+                "REACTION", "COMPOUND", "ACID", "BASE", "ALKALINE", "PERIODIC",
+                "NEUTRON", "PROTON", "ELECTRON", "ISOTOPE", "OXIDATION",
+                "REDUCTION", "POLYMER", "SYNTHESIS", "VALENCE", "COMBUSTION"
+            ],
+            law: [
+                "JUDGMENT", "STATUTE", "LAWYER", "COURT", "WITNESS", "JURY",
+                "DEFENSE", "PROSECUTION", "EVIDENCE", "CONTRACT", "TORT",
+                "CONSTITUTION", "LEGISLATION", "CRIMINAL", "CIVIL", "PLAINTIFF",
+                "DEFENDANT", "APPEAL", "SENTENCE", "VERDICT", "SUBPOENA", "ALIBI"
+            ],
+            medicine: [
+                "DIAGNOSIS", "SURGERY", "SYMPTOM", "THERAPY", "ANATOMY",
+                "PHYSIOLOGY", "PHARMACY", "HOSPITAL", "DISEASE", "TREATMENT",
+                "PATHOLOGY", "IMMUNITY", "VIRUS", "BACTERIA", "HEART", "BLOOD",
+                "BRAIN", "PATIENT", "DOCTOR", "PRESCRIPTION", "ANTIBIOTIC", "VACCINE"
+            ],
+            physics: [
+                "FORCE", "ENERGY", "VECTOR", "MASS", "GRAVITY", "VELOCITY",
+                "ACCELERATION", "MOMENTUM", "WAVELENGTH", "FRICTION", "CIRCUIT",
+                "VOLTAGE", "CURRENT", "MAGNETISM", "NUCLEAR", "THERMODYNAMICS",
+                "PHOTON", "QUASAR", "QUANTUM", "RELATIVITY", "ENTROPY", "DENSITY"
+            ],
+            vetMed: [
+                "VETERINARY", "ANIMAL", "ZOONOSIS", "DIAGNOSTIC", "SURGICAL",
+                "EQUINE", "FELINE", "CANINE", "BOVINE", "AVIAN", "RADIOLOGY",
+                "VACCINATION", "PARASITE", "TREATMENT", "SYMPTOM", "CLINIC",
+                "PATIENT", "HEALTH", "INJECTION", "DISEASE", "ANESTHESIA", "SURGEON"
+            ]
+        };
+        
+        let selectedWord = "";
+        let incorrectGuesses = 0;
+        let guessedLetters = [];
+        const maxIncorrectGuesses = 6;
+        
+        // DOM Elements
+        const hangmanImage = document.getElementById("hangman-image");
+        const wordDisplay = document.getElementById("word-display");
+        const lettersContainer = document.getElementById("letters-container");
+        const gameEndMessageDiv = document.getElementById("game-end-message");
+        const gameMessageParagraph = document.getElementById("game-message");
+        const playAgainButton = document.getElementById("play-again-button");
+        const winsCounter = document.getElementById("wins-counter");
+        const lossesCounter = document.getElementById("losses-counter");
+        const subjectSelector = document.getElementById("subjects");
+        const startScreen = document.getElementById("start-screen");
+        const gameScreen = document.getElementById("game-screen");
+        const startGameButton = document.getElementById("start-game-button");
+        const body = document.body;
+        const installButton = document.getElementById("install-button");
+        
+        let wins = 0;
+        let losses = 0;
+        let deferredPrompt;
+
+        // Create alphabet buttons
+        function createAlphabetButtons() {
+            lettersContainer.innerHTML = "";
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            for (const letter of alphabet) {
+                const button = document.createElement("button");
+                button.classList.add("letter-button");
+                button.innerText = letter;
+                button.addEventListener("click", () => handleGuess(letter));
+                lettersContainer.appendChild(button);
+            }
+        }
+
+        // Update word display
+        function updateWordDisplay() {
+            let displayString = "";
+            for (const letter of selectedWord) {
+                if (guessedLetters.includes(letter)) {
+                    displayString += letter + " ";
+                } else {
+                    displayString += "_ ";
+                }
+            }
+            wordDisplay.innerText = displayString.trim();
+        }
+
+        // Update hangman image
+        function updateHangmanImage() {
+            hangmanImage.src = `images/Hangman_${incorrectGuesses}.png`;
+        }
+
+        // Handle letter guess
+        function handleGuess(letter) {
+            if (guessedLetters.includes(letter)) {
+                return;
+            }
+
+            guessedLetters.push(letter);
+            
+            const letterButtons = document.querySelectorAll('.letter-button');
+            let clickedButton = null;
+            
+            for (const button of letterButtons) {
+                if (button.innerText === letter) {
+                    clickedButton = button;
+                    break;
+                }
+            }
+
+            if (clickedButton) {
+                clickedButton.classList.add("disabled");
+                clickedButton.disabled = true;
+            }
+
+            if (selectedWord.includes(letter)) {
+                updateWordDisplay();
+            } else {
+                incorrectGuesses++;
+                updateHangmanImage();
+            }
+            
+            checkGameStatus();
+        }
+
+        // Check game status
+        function checkGameStatus() {
+            const currentWord = wordDisplay.innerText.replace(/ /g, '');
+
+            if (currentWord === selectedWord) {
+                gameMessageParagraph.innerText = "You won! The word was " + selectedWord;
+                wins++;
+                updateScoreboard();
+                showGameEndScreen();
+            }
+
+            if (incorrectGuesses >= maxIncorrectGuesses) {
+                gameMessageParagraph.innerText = "You lost! The word was " + selectedWord;
+                losses++;
+                updateScoreboard();
+                showGameEndScreen();
+            }
+        }
+
+        // Show game end screen
+        function showGameEndScreen() {
+            gameEndMessageDiv.style.display = "block";
+            
+            const letterButtons = document.querySelectorAll('.letter-button');
+            for (const button of letterButtons) {
+                button.disabled = true;
+            }
+        }
+
+        // Update scoreboard
+        function updateScoreboard() {
+            winsCounter.innerText = wins;
+            lossesCounter.innerText = losses;
+        }
+
+        // Initialize game
+        function initializeGame() {
+            incorrectGuesses = 0;
+            guessedLetters = [];
+
+            const currentSubject = subjectSelector.value;
+            const wordsForSubject = wordsBySubject[currentSubject];
+            selectedWord = wordsForSubject[Math.floor(Math.random() * wordsForSubject.length)];
+
+            updateHangmanImage();
+            updateWordDisplay();
+            createAlphabetButtons();
+            gameEndMessageDiv.style.display = "none";
+        }
+
+        // PWA Installation Handling
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+                installButton.style.display = 'none';
+            }
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+
+        // Event Listeners
+        playAgainButton.addEventListener("click", () => {
+            gameScreen.style.display = "none";
+            startScreen.style.display = "block";
+            body.className = '';
+            body.classList.add('start-screen-background');
+        });
+
+        subjectSelector.addEventListener("change", () => {
+            startGameButton.disabled = false;
+        });
+
+        startGameButton.addEventListener("click", () => {
+            startScreen.style.display = "none";
+            gameScreen.style.display = "block";
+            
+            const selectedSubject = subjectSelector.value;
+            body.className = '';
+            body.classList.add(`subject-${selectedSubject}`);
+            
+            initializeGame();
+        });
+
+        // Initial setup
+        window.addEventListener('load', () => {
+            gameScreen.style.display = "none";
+            startScreen.style.display = "block";
+            body.classList.add('start-screen-background');
+        });
+    </script>
+</body>
+</html>
