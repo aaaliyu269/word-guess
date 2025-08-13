@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Guess Challenge | Enhanced</title>
+    <title>Word Guess | Version 2.2.0</title>
+    
+    <!-- Version tracking -->
+    <meta name="version" content="2.2.0">
+    <meta name="build-date" content="2025-08-10">
+    
     <style>
         :root {
             --primary: #4e54c8;
@@ -45,9 +50,9 @@
         .container {
             width: 100%;
             max-width: 800px;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             position: relative;
         }
@@ -118,7 +123,6 @@
             padding: 15px;
             border-radius: 10px;
             font-weight: bold;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
         
         .score-item {
@@ -127,14 +131,18 @@
         
         .hangman-container {
             margin: 20px 0;
-            width: 200px;
-            height: 200px;
-            position: relative;
         }
         
-        .hangman-svg {
-            width: 100%;
-            height: 100%;
+        .hangman-image {
+            width: 200px;
+            height: 200px;
+            background: var(--light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 3px solid var(--dark);
         }
         
         .word-display {
@@ -145,11 +153,6 @@
             text-align: center;
             min-height: 60px;
             color: var(--dark);
-            font-weight: bold;
-            padding: 10px;
-            background: rgba(236, 240, 241, 0.5);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .letters-container {
@@ -175,35 +178,26 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .letter-btn:hover:not(:disabled) {
             background: var(--secondary);
             transform: translateY(-3px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
         }
         
         .letter-btn:disabled {
             background: #bdc3c7;
             cursor: not-allowed;
             opacity: 0.7;
-            transform: none;
-            box-shadow: none;
         }
         
         .game-end {
             text-align: center;
-            padding: 30px;
+            padding: 20px;
             margin: 20px 0;
             border-radius: 10px;
             display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         
         .win-message {
@@ -219,14 +213,12 @@
         .game-end h3 {
             font-size: 1.8rem;
             margin-bottom: 15px;
-            color: var(--dark);
         }
         
         .controls {
             display: flex;
             gap: 15px;
             margin-top: 20px;
-            justify-content: center;
         }
         
         .btn {
@@ -241,7 +233,6 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .btn-primary {
@@ -252,7 +243,7 @@
         .btn-primary:hover {
             background: var(--secondary);
             transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         .btn-success {
@@ -260,19 +251,9 @@
             color: white;
         }
         
-        .btn-success:hover {
-            background: #43a047;
-            transform: translateY(-3px);
-        }
-        
         .btn-warning {
             background: var(--warning);
             color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #f57c00;
-            transform: translateY(-3px);
         }
         
         .subject-selector {
@@ -293,7 +274,6 @@
             width: 100%;
             max-width: 300px;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .instructions {
@@ -302,32 +282,19 @@
             border-radius: 10px;
             margin: 20px 0;
             line-height: 1.6;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .instructions h3 {
             margin-bottom: 10px;
             color: var(--dark);
-            text-align: center;
         }
         
         .instructions ul {
             padding-left: 20px;
-            list-style-type: none;
         }
         
         .instructions li {
             margin-bottom: 8px;
-            position: relative;
-            padding-left: 25px;
-        }
-        
-        .instructions li:before {
-            content: "•";
-            color: var(--primary);
-            position: absolute;
-            left: 0;
-            font-size: 1.2rem;
         }
         
         footer {
@@ -368,7 +335,7 @@
                 letter-spacing: 6px;
             }
             
-            .hangman-container {
+            .hangman-image {
                 width: 150px;
                 height: 150px;
             }
@@ -398,8 +365,8 @@
                 <button id="sfx-toggle" class="sound-btn active">🔊</button>
             </div>
             <h1>🎮 Word Guess Challenge</h1>
-            <p>Guess the word before the hangman is complete!</p>
-            <div class="version-info">Version: 2.3.0</div>
+            <p>Guess the word, keep Bumi safe!</p>
+            <div class="version-info">Version: 2.2.0</div>
         </header>
         
         <main class="game-container">
@@ -419,9 +386,9 @@
             </div>
             
             <div class="hangman-container">
-                <svg class="hangman-svg" id="hangman-svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
-                    <!-- SVG will be generated here -->
-                </svg>
+                <div class="hangman-image" id="hangman-image">
+                    😊
+                </div>
             </div>
             
             <div class="word-display" id="word-display">
@@ -476,26 +443,23 @@
                 <ul>
                     <li>Select a subject category to start the game</li>
                     <li>Click on letters to guess the hidden word</li>
-                    <li>Each incorrect guess adds a part to the hangman</li>
+                    <li>Each incorrect guess makes Bumi more scared</li>
                     <li>You have 6 wrong guesses before the game ends</li>
-                    <li>Try to guess the word before the hangman is complete!</li>
+                    <li>Try to guess the word before Bumi dies!</li>
                     <li>Toggle music and sound effects with the controls in the top-left</li>
                 </ul>
             </div>
         </main>
         
         <footer>
-            <p>Hangman by A. A. Aliyu &copy; 2025 | Version 2.3.0</p>
+            <p>Hangman by A. A. A &copy; 2025 | Version 2.2.0</p>
             <div class="version-history">
                 <h4>Version History</h4>
-                <div class="version-item">
-                    <strong>v2.3.0</strong> (2025-08-10) - Added SVG hangman graphics
-                </div>
                 <div class="version-item">
                     <strong>v2.2.0</strong> (2025-08-10) - Added sound effects and music controls
                 </div>
                 <div class="version-item">
-                    <strong>v2.1.0</strong> (2025-08-09) - Initial release
+                    <strong>v2.1.0</strong> (2025-08-09) - Initial release of Hangman Challenge
                 </div>
             </div>
         </footer>
@@ -504,31 +468,36 @@
     <!-- Audio elements for sound effects - using local files in an "audio" folder -->
     <audio id="background-music" loop>
         <source src="audio/background-music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
     </audio>
     <audio id="correct-sound">
         <source src="audio/Open Up.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
     </audio>
     <audio id="wrong-sound">
         <source src="audio/Ping.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
     </audio>
     <audio id="win-sound">
         <source src="audio/win-sound.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
     </audio>
     <audio id="lose-sound">
         <source src="audio/lose-sound.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
     </audio>
 
     <script>
         // Game data with words for different subjects
         const wordsBySubject = {
             accounting: ["ASSET", "LIABILITY", "EQUITY", "DEBIT", "CREDIT", "REVENUE", "EXPENSE", "JOURNAL", "LEDGER", "BALANCE", "ACCOUNT", "FINANCE", "BUDGET", "FISCAL", "AUDIT", "INCOME", "TAXES", "RECEIVABLE", "PAYABLE", "DEPRECIATION", "PROFIT", "LOSS"],
-            biology: ["CELL", "GENE", "DNA", "PROTEIN", "PHOTOSYNTHESIS", "ORGANISM", "ECOSYSTEM", "BIOME", "MUTUALISM", "PARASITISM", "NICHE", "HEREDITY", "EVOLUTION", "MITOCHONDRIA", "CHLOROPLAST", "NUCLEUS", "BACTERIA", "VIRUS", "SPECIES", "BIOSPHERE", "RESPIRATION", "POPULATION", "MUTATION", "ENZYME", "CHROMOSOME"],
+            biology: ["CELL", "GENE", "DNA", "PROTEIN", "PHOTOSYNTHESIS", "ORGANISM", "ECOSYSTEM", "BIOME", "MUTUALISM", "PARASITISM", "HEREDITY", "EVOLUTION", "MITOCHONDRIA", "CHLOROPLAST", "NUCLEUS", "BACTERIA", "VIRUS", "SPECIES", "BIOSPHERE", "NICHE", "RESPIRATION", "POPULATION", "MUTATION", "ENZYME", "CHROMOSOME"],
             building: ["CONCRETE", "FOUNDATION", "SCAFFOLD", "PLUMBING", "CARPENTRY", "WIRING", "BRICKLAYING", "ROOFING", "MASONRY", "INSULATION", "PLANNING", "BLUEPRINT", "SQUARE", "LEVEL", "HAMMER", "NAIL", "GIRDER", "TRUSS", "DRYWALL", "DUCTWORK", "FAUCET", "GUTTER"],
             chemistry: ["ELEMENT", "ATOM", "MOLECULE", "BONDING", "CATALYST", "SOLUTION", "REACTION", "COMPOUND", "ACID", "BASE", "ALKALINE", "PERIODIC", "NEUTRON", "PROTON", "ELECTRON", "ISOTOPE", "OXIDATION", "REDUCTION", "POLYMER", "SYNTHESIS", "VALENCE", "COMBUSTION"],
             law: ["JUDGMENT", "STATUTE", "LAWYER", "COURT", "WITNESS", "JURY", "DEFENSE", "PROSECUTION", "EVIDENCE", "CONTRACT", "TORT", "CONSTITUTION", "LEGISLATION", "CRIMINAL", "CIVIL", "PLAINTIFF", "DEFENDANT", "APPEAL", "SENTENCE", "VERDICT", "SUBPOENA", "ALIBI"],
-            medicine: ["DIAGNOSIS", "SURGERY", "SYMPTOM", "THERAPY", "ANATOMY", "PHYSIOLOGY", "PHARMACY", "MALARIA", "HOSPITAL", "DISEASE", "TREATMENT", "PATHOLOGY", "IMMUNITY", "PHYSIOTHERAPY", "CHEMOTHERAPY", "VIRUS", "BACTERIA", "HEART", "BLOOD", "BRAIN", "PATIENT", "SHOCK", "MALAISE", "DOCTOR", "PRESCRIPTION", "ANTIBIOTIC", "VACCINE"],
+            medicine: ["DIAGNOSIS", "SURGERY", "SYMPTOM", "THERAPY", "ANATOMY", "PHYSIOLOGY", "PHARMACY", "MALARIA", "HOSPITAL", "DISEASE", "TREATMENT", "PATHOLOGY", "PHYSIOTHERAPY", "CHEMOTHERAPY", "IMMUNITY", "VIRUS", "BACTERIA", "HEART", "BLOOD", "BRAIN", "PATIENT", "SHOCK", "MALAISE", "DOCTOR", "PRESCRIPTION", "ANTIBIOTIC", "VACCINE"],
             physics: ["FORCE", "ENERGY", "VECTOR", "MASS", "GRAVITY", "VELOCITY", "ACCELERATION", "MOMENTUM", "WAVELENGTH", "FRICTION", "CIRCUIT", "VOLTAGE", "CURRENT", "MAGNETISM", "NUCLEAR", "THERMODYNAMICS", "PHOTON", "QUASAR", "QUANTUM", "RELATIVITY", "ENTROPY", "DENSITY"],
-            vetMed: ["VETERINARY", "ANIMAL", "ZOONOSIS","DIAGNOSIS", "SURGICAL", "EQUINE", "FELINE", "CANINE", "BOVINE", "RUMINANT", "AVIAN", "SEPTICAEMIA", "RADIOLOGY", "ASCITIS", "HAEMORRHAGE", "VETERINARIAN", "VACCINATION", "PATHOGENESIS", "PROLAPSE", "DYSTOCIA", "HELMINTHOSIS", "THERIOGENELOGY", "QUARANTINE", "ANAEMIA", "PYREXIA", "ANOREXIA", "VECTOR", "PARASITE", "TREATMENT", "SYMPTOM", "CLINIC", "PATIENT", "HEALTH", "INJECTION", "DISEASE", "ANAESTHESIA", "RABIES", "SUBCUTANEOUS", "ACUTE", "CARDIOMYOPATHY", "SURGEON"],
+            vetMed: ["VETERINARY", "ANIMAL", "ZOONOSIS","DIAGNOSIS", "SURGICAL", "EQUINE", "FELINE", "CANINE", "BOVINE", "RUMINANT", "AVIAN", "SEPTICAEMIA", "RADIOLOGY", "PATHOGENESIS", "HELMINTHOSIS", "PROLAPSE", "DYSTOCIA", "THERIOGENOLOGY", "VETERINARIAN", "VACCINATION", "QUARANTINE", "ANAEMIA", "PYREXIA", "ANOREXIA", "VECTOR", "ASCITIS", "HAEMORRHAGE", "PARASITE", "TREATMENT", "SYMPTOM", "CLINIC", "PATIENT", "HEALTH", "INJECTION", "DISEASE", "ANAESTHESIA", "RABIES", "SUBCUTANEOUS", "ACUTE", "CARDIOMYOPATHY", "SURGEON"],
             animals: ["ELEPHANT", "GIRAFFE", "WHALE", "HOESE", "KANGAROO", "PANDA", "CHEETAH", "DOLPHIN", "CROCODILE", "CAMEL", "BUTTERFLY"],
             countries: ["NIGERIA", "SUDAN", "CHAD", "CAMEROON", "BELGIUM", "CHINA", "CANADA", "BRAZIL", "JAPAN", "GERMANY", "AUSTRALIA", "EGYPT", "ARGENTINA", "THAILAND"],
             programming: ["FUNCTION", "VARIABLE", "ALGORITHM", "DATABASE", "FRAMEWORK", "INTERFACE", "JAVASCRIPT", "RESPONSIVE"],
@@ -550,57 +519,20 @@
             sfxEnabled: true
         };
         
-        // Hangman SVG stages
+        // Hangman stages (using emoji for simplicity)
         const hangmanStages = [
-            // Stage 0: Empty
-            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>`,
-            
-            // Stage 1: Head
-            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>`,
-            
-            // Stage 2: Body
-            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>`,
-            
-            // Stage 3: Left Arm
-            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="120" x2="60" y2="100" stroke="#2c3e50" stroke-width="4"/>`,
-            
-            // Stage 4: Right Arm
-            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="120" x2="60" y2="100" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="120" x2="100" y2="100" stroke="#2c3e50" stroke-width="4"/>`,
-            
-            // Stage 5: Left Leg
-            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="120" x2="60" y2="100" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="120" x2="100" y2="100" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="140" x2="60" y2="160" stroke="#2c3e50" stroke-width="4"/>`,
-            
-            // Stage 6: Right Leg (complete)
-            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
-             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="120" x2="60" y2="100" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="120" x2="100" y2="100" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="140" x2="60" y2="160" stroke="#2c3e50" stroke-width="4"/>
-             <line x1="80" y1="140" x2="100" y2="160" stroke="#2c3e50" stroke-width="4"/>
-             <circle cx="75" cy="75" r="2" fill="#2c3e50"/>
-             <circle cx="85" cy="75" r="2" fill="#2c3e50"/>
-             <path d="M70,85 Q80,95 90,85" stroke="#2c3e50" stroke-width="2" fill="none"/>`
+            "😊", // 0 incorrect guesses
+            "😐", // 1
+            "😕", // 2
+            "😟", // 3
+            "😨", // 4
+            "😰", // 5
+            "💀"  // 6 (game over)
         ];
         
         // DOM elements
         const elements = {
-            hangmanSvg: document.getElementById("hangman-svg"),
+            hangmanImage: document.getElementById("hangman-image"),
             wordDisplay: document.getElementById("word-display"),
             lettersContainer: document.getElementById("letters-container"),
             winMessage: document.getElementById("win-message"),
@@ -631,14 +563,23 @@
             createAlphabetButtons();
             updateGameDisplay();
             
+            // Load sound settings from localStorage
+            const savedMusic = localStorage.getItem("musicEnabled");
+            if (savedMusic !== null) {
+                gameState.musicEnabled = savedMusic === "true";
+                elements.musicToggle.classList.toggle("active", gameState.musicEnabled);
+            }
+            
+            const savedSfx = localStorage.getItem("sfxEnabled");
+            if (savedSfx !== null) {
+                gameState.sfxEnabled = savedSfx === "true";
+                elements.sfxToggle.classList.toggle("active", gameState.sfxEnabled);
+            }
+            
             // Set initial music state
             if (gameState.musicEnabled) {
                 elements.backgroundMusic.volume = 0.3;
-                try {
-                    elements.backgroundMusic.play();
-                } catch (e) {
-                    console.log("Autoplay blocked by browser");
-                }
+                elements.backgroundMusic.play().catch(e => console.log("Autoplay blocked by browser"));
             }
             
             // Event listeners
@@ -660,6 +601,7 @@
         function toggleMusic() {
             gameState.musicEnabled = !gameState.musicEnabled;
             elements.musicToggle.classList.toggle("active", gameState.musicEnabled);
+            localStorage.setItem("musicEnabled", gameState.musicEnabled);
             
             if (gameState.musicEnabled) {
                 elements.backgroundMusic.play();
@@ -672,6 +614,7 @@
         function toggleSfx() {
             gameState.sfxEnabled = !gameState.sfxEnabled;
             elements.sfxToggle.classList.toggle("active", gameState.sfxEnabled);
+            localStorage.setItem("sfxEnabled", gameState.sfxEnabled);
         }
         
         // Play sound effect
@@ -714,6 +657,11 @@
             // Hide win/lose messages
             elements.winMessage.style.display = "none";
             elements.loseMessage.style.display = "none";
+            
+            // Play background music if enabled
+            if (gameState.musicEnabled) {
+                elements.backgroundMusic.play();
+            }
             
             updateGameDisplay();
         }
@@ -765,9 +713,8 @@
         
         // Update the game display
         function updateGameDisplay() {
-            // Update hangman SVG
-            const stage = Math.min(gameState.incorrectGuesses, hangmanStages.length - 1);
-            elements.hangmanSvg.innerHTML = hangmanStages[stage];
+            // Update hangman image
+            elements.hangmanImage.textContent = hangmanStages[gameState.incorrectGuesses];
             
             // Update word display
             let displayText = "";
