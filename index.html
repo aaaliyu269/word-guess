@@ -3,27 +3,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangman</title>
-    
-    <!-- Version tracking -->
-    <meta name="version" content="2.1.0">
-    <meta name="build-date" content="2025-08-09">
-    
-    <link rel="stylesheet" href="style.css">
-
+    <title>Word Guess Challenge | Enhanced</title>
+    <style>
+        :root {
+            --primary: #4e54c8;
+            --secondary: #8f94fb;
+            --success: #4CAF50;
+            --danger: #f44336;
+            --warning: #FF9800;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --text: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        header {
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .version-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .sound-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .sound-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .sound-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .sound-btn.active {
+            background: var(--primary);
+        }
+        
+        .game-container {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .hangman-container {
+            margin: 20px 0;
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+        
+        .hangman-svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .word-display {
+            font-size: 2.5rem;
+            letter-spacing: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            text-align: center;
+            min-height: 60px;
+            color: var(--dark);
+            font-weight: bold;
+            padding: 10px;
+            background: rgba(236, 240, 241, 0.5);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+            max-width: 600px;
+        }
+        
+        .letter-btn {
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .letter-btn:hover:not(:disabled) {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .letter-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .game-end {
+            text-align: center;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .win-message {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid var(--success);
+        }
+        
+        .lose-message {
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid var(--danger);
+        }
+        
+        .game-end h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #43a047;
+            transform: translateY(-3px);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #f57c00;
+            transform: translateY(-3px);
+        }
+        
+        .subject-selector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        select {
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 2px solid var(--primary);
+            background: white;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .instructions {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.6;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+            text-align: center;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            list-style-type: none;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .instructions li:before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--dark);
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .version-history {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .version-history h4 {
+            margin-bottom: 10px;
+        }
+        
+        .version-item {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .letter-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .word-display {
+                font-size: 1.8rem;
+                letter-spacing: 6px;
+            }
+            
+            .hangman-container {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .sound-controls {
+                top: 5px;
+                left: 5px;
+            }
+            
+            .sound-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
-<body class="start-screen">
+<body>
     <div class="container">
         <header>
-            <h1>Hangman</h1>
-            <p>Test your knowledge across academic disciplines!</p>
-            <div class="version-info">Version: 2.1.0</div>
+            <div class="sound-controls">
+                <button id="music-toggle" class="sound-btn active">🎵</button>
+                <button id="sfx-toggle" class="sound-btn active">🔊</button>
+            </div>
+            <h1>🎮 Word Guess Challenge</h1>
+            <p>Guess the word before the hangman is complete!</p>
+            <div class="version-info">Version: 2.3.0</div>
         </header>
-        
-        <div class="sound-controls">
-            <div class="sound-btn" id="sound-toggle">🔊</div>
-            <div class="sound-btn" id="music-toggle">🎵</div>
-        </div>
         
         <main class="game-container">
             <div class="scoreboard">
@@ -36,19 +413,19 @@
                     <div id="losses-counter">0</div>
                 </div>
                 <div class="score-item">
-                    <div>Guesses Left</div>
+                    <div>Remaining</div>
                     <div id="guesses-counter">6</div>
                 </div>
             </div>
             
             <div class="hangman-container">
-                <div class="hangman-box">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Hangman-0.png" alt="Hangman" class="hangman-image" id="hangman-image">
-                </div>
+                <svg class="hangman-svg" id="hangman-svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
+                    <!-- SVG will be generated here -->
+                </svg>
             </div>
             
             <div class="word-display" id="word-display">
-                <!-- Word will appear here -->
+                _ _ _ _ _ _
             </div>
             
             <div class="letters-container" id="letters-container">
@@ -57,7 +434,7 @@
             
             <div class="game-end win-message" id="win-message">
                 <h3>🎉 Congratulations! You Won! 🎉</h3>
-                <p>The word was: <strong id="win-word"></strong></p>
+                <p>The word was: <span id="win-word"></span></p>
                 <div class="controls">
                     <button class="btn btn-success" id="play-again-btn">Play Again</button>
                     <button class="btn btn-primary" id="new-subject-btn">New Subject</button>
@@ -66,7 +443,7 @@
             
             <div class="game-end lose-message" id="lose-message">
                 <h3>☠️ Game Over! ☠️</h3>
-                <p>The word was: <strong id="lose-word"></strong></p>
+                <p>The word was: <span id="lose-word"></span></p>
                 <div class="controls">
                     <button class="btn btn-success" id="try-again-btn">Try Again</button>
                     <button class="btn btn-warning" id="change-subject-btn">Change Subject</button>
@@ -74,69 +451,386 @@
             </div>
             
             <div class="subject-selector" id="subject-selector">
-                <h2 class="subject-title">Select an Academic Subject</h2>
-                <div class="subject-grid">
-                    <div class="subject-card" data-subject="accounting">
-                        <h3>Accounting</h3>
-                        <p>Financial terms and concepts</p>
-                    </div>
-                    <div class="subject-card" data-subject="biology">
-                        <h3>Biology</h3>
-                        <p>Life sciences and organisms</p>
-                    </div>
-                    <div class="subject-card" data-subject="building">
-                        <h3>Building</h3>
-                        <p>Construction and architecture</p>
-                    </div>
-                    <div class="subject-card" data-subject="chemistry">
-                        <h3>Chemistry</h3>
-                        <p>Elements and reactions</p>
-                    </div>
-                    <div class="subject-card" data-subject="law">
-                        <h3>Law</h3>
-                        <p>Legal terms and concepts</p>
-                    </div>
-                    <div class="subject-card" data-subject="medicine">
-                        <h3>Medicine</h3>
-                        <p>Medical terminology</p>
-                    </div>
-                    <div class="subject-card" data-subject="physics">
-                        <h3>Physics</h3>
-                        <p>Forces and energy</p>
-                    </div>
-                    <div class="subject-card" data-subject="vetMed">
-                        <h3>Veterinary Medicine</h3>
-                        <p>Animal health and care</p>
-                    </div>
-                </div>
+                <h2>Select a Subject</h2>
+                <select id="subjects">
+                    <option value="" disabled selected>Select a Subject</option>
+                    <option value="accounting">Accounting</option>
+                    <option value="biology">Biology</option>
+                    <option value="building">Building</option>
+                    <option value="chemistry">Chemistry</option>
+                    <option value="law">Law</option>
+                    <option value="medicine">Medicine</option>
+                    <option value="physics">Physics</option>
+                    <option value="vetMed">Veterinary Medicine</option>
+                    <option value="animals">Animals</option>
+                    <option value="countries">Countries</option>
+                    <option value="programming">Programming</option>
+                    <option value="science">Science</option>
+                    <option value="sports">Sports</option>
+                </select>
+                <button class="btn btn-primary" id="start-btn">Start Game</button>
             </div>
             
             <div class="instructions">
-                <h3>How to Play Academic Hangman</h3>
+                <h3>How to Play</h3>
                 <ul>
-                    <li>Select an academic subject from the options above to start the game</li>
-                    <li>Click on letters to guess the hidden word related to your chosen subject</li>
-                    <li>Each incorrect guess will add a part to the hangman figure</li>
-                    <li>You have 6 incorrect guesses before the game ends</li>
-                    <li>Try to guess the word before the hangman is complete to win!</li>
+                    <li>Select a subject category to start the game</li>
+                    <li>Click on letters to guess the hidden word</li>
+                    <li>Each incorrect guess adds a part to the hangman</li>
+                    <li>You have 6 wrong guesses before the game ends</li>
+                    <li>Try to guess the word before the hangman is complete!</li>
+                    <li>Toggle music and sound effects with the controls in the top-left</li>
                 </ul>
             </div>
         </main>
         
         <footer>
-            <p>Hangman By A. A. Aliyu &copy; 2025 | Version 2.1.0</p>
+            <p>Hangman by A. A. Aliyu &copy; 2025 | Version 2.3.0</p>
+            <div class="version-history">
+                <h4>Version History</h4>
+                <div class="version-item">
+                    <strong>v2.3.0</strong> (2025-08-10) - Added SVG hangman graphics
+                </div>
+                <div class="version-item">
+                    <strong>v2.2.0</strong> (2025-08-10) - Added sound effects and music controls
+                </div>
+                <div class="version-item">
+                    <strong>v2.1.0</strong> (2025-08-09) - Initial release
+                </div>
+            </div>
         </footer>
     </div>
 
-    <!-- Sound Effects -->
-    <audio id="correct-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3"></audio>
-    <audio id="incorrect-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
-    <audio id="win-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
-    <audio id="lose-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-losing-drums-2023.mp3"></audio>
-    <audio id="button-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3"></audio>
-    <audio id="background-music" loop src="https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-667.mp3"></audio>
+    <!-- Audio elements for sound effects - using local files in an "audio" folder -->
+    <audio id="background-music" loop>
+        <source src="audio/background-music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="correct-sound">
+        <source src="audio/Open Up.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="wrong-sound">
+        <source src="audio/Ping.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="win-sound">
+        <source src="audio/win-sound.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="lose-sound">
+        <source src="audio/lose-sound.mp3" type="audio/mpeg">
+    </audio>
 
-    <script src="script.js"></script>
-
+    <script>
+        // Game data with words for different subjects
+        const wordsBySubject = {
+            accounting: ["ASSET", "LIABILITY", "EQUITY", "DEBIT", "CREDIT", "REVENUE", "EXPENSE", "JOURNAL", "LEDGER", "BALANCE", "ACCOUNT", "FINANCE", "BUDGET", "FISCAL", "AUDIT", "INCOME", "TAXES", "RECEIVABLE", "PAYABLE", "DEPRECIATION", "PROFIT", "LOSS"],
+            biology: ["CELL", "GENE", "DNA", "PROTEIN", "PHOTOSYNTHESIS", "ORGANISM", "ECOSYSTEM", "BIOME", "MUTUALISM", "PARASITISM", "NICHE", "HEREDITY", "EVOLUTION", "MITOCHONDRIA", "CHLOROPLAST", "NUCLEUS", "BACTERIA", "VIRUS", "SPECIES", "BIOSPHERE", "RESPIRATION", "POPULATION", "MUTATION", "ENZYME", "CHROMOSOME"],
+            building: ["CONCRETE", "FOUNDATION", "SCAFFOLD", "PLUMBING", "CARPENTRY", "WIRING", "BRICKLAYING", "ROOFING", "MASONRY", "INSULATION", "PLANNING", "BLUEPRINT", "SQUARE", "LEVEL", "HAMMER", "NAIL", "GIRDER", "TRUSS", "DRYWALL", "DUCTWORK", "FAUCET", "GUTTER"],
+            chemistry: ["ELEMENT", "ATOM", "MOLECULE", "BONDING", "CATALYST", "SOLUTION", "REACTION", "COMPOUND", "ACID", "BASE", "ALKALINE", "PERIODIC", "NEUTRON", "PROTON", "ELECTRON", "ISOTOPE", "OXIDATION", "REDUCTION", "POLYMER", "SYNTHESIS", "VALENCE", "COMBUSTION"],
+            law: ["JUDGMENT", "STATUTE", "LAWYER", "COURT", "WITNESS", "JURY", "DEFENSE", "PROSECUTION", "EVIDENCE", "CONTRACT", "TORT", "CONSTITUTION", "LEGISLATION", "CRIMINAL", "CIVIL", "PLAINTIFF", "DEFENDANT", "APPEAL", "SENTENCE", "VERDICT", "SUBPOENA", "ALIBI"],
+            medicine: ["DIAGNOSIS", "SURGERY", "SYMPTOM", "THERAPY", "ANATOMY", "PHYSIOLOGY", "PHARMACY", "MALARIA", "HOSPITAL", "DISEASE", "TREATMENT", "PATHOLOGY", "IMMUNITY", "PHYSIOTHERAPY", "CHEMOTHERAPY", "VIRUS", "BACTERIA", "HEART", "BLOOD", "BRAIN", "PATIENT", "SHOCK", "MALAISE", "DOCTOR", "PRESCRIPTION", "ANTIBIOTIC", "VACCINE"],
+            physics: ["FORCE", "ENERGY", "VECTOR", "MASS", "GRAVITY", "VELOCITY", "ACCELERATION", "MOMENTUM", "WAVELENGTH", "FRICTION", "CIRCUIT", "VOLTAGE", "CURRENT", "MAGNETISM", "NUCLEAR", "THERMODYNAMICS", "PHOTON", "QUASAR", "QUANTUM", "RELATIVITY", "ENTROPY", "DENSITY"],
+            vetMed: ["VETERINARY", "ANIMAL", "ZOONOSIS","DIAGNOSIS", "SURGICAL", "EQUINE", "FELINE", "CANINE", "BOVINE", "RUMINANT", "AVIAN", "SEPTICAEMIA", "RADIOLOGY", "ASCITIS", "HAEMORRHAGE", "VETERINARIAN", "VACCINATION", "PATHOGENESIS", "PROLAPSE", "DYSTOCIA", "HELMINTHOSIS", "THERIOGENELOGY", "QUARANTINE", "ANAEMIA", "PYREXIA", "ANOREXIA", "VECTOR", "PARASITE", "TREATMENT", "SYMPTOM", "CLINIC", "PATIENT", "HEALTH", "INJECTION", "DISEASE", "ANAESTHESIA", "RABIES", "SUBCUTANEOUS", "ACUTE", "CARDIOMYOPATHY", "SURGEON"],
+            animals: ["ELEPHANT", "GIRAFFE", "WHALE", "HOESE", "KANGAROO", "PANDA", "CHEETAH", "DOLPHIN", "CROCODILE", "CAMEL", "BUTTERFLY"],
+            countries: ["NIGERIA", "SUDAN", "CHAD", "CAMEROON", "BELGIUM", "CHINA", "CANADA", "BRAZIL", "JAPAN", "GERMANY", "AUSTRALIA", "EGYPT", "ARGENTINA", "THAILAND"],
+            programming: ["FUNCTION", "VARIABLE", "ALGORITHM", "DATABASE", "FRAMEWORK", "INTERFACE", "JAVASCRIPT", "RESPONSIVE"],
+            science: ["MOLECULE", "GRAVITY", "EVOLUTION", "BIOLOGY", "CHEMISTRY", "ASTRONOMY", "ELECTRON", "VOLCANO"],
+            sports: ["BASKETBALL", "FOOTBALL", "TENNIS", "SWIMMING", "VOLLEYBALL", "BASEBALL", "HOCKEY", "GYMNASTICS"]
+        };
+        
+        // Game state
+        let gameState = {
+            selectedWord: "",
+            incorrectGuesses: 0,
+            guessedLetters: [],
+            maxIncorrectGuesses: 6,
+            currentSubject: "animals",
+            wins: 0,
+            losses: 0,
+            gameActive: false,
+            musicEnabled: true,
+            sfxEnabled: true
+        };
+        
+        // Hangman SVG stages
+        const hangmanStages = [
+            // Stage 0: Empty
+            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>`,
+            
+            // Stage 1: Head
+            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>`,
+            
+            // Stage 2: Body
+            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>`,
+            
+            // Stage 3: Left Arm
+            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="120" x2="60" y2="100" stroke="#2c3e50" stroke-width="4"/>`,
+            
+            // Stage 4: Right Arm
+            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="120" x2="60" y2="100" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="120" x2="100" y2="100" stroke="#2c3e50" stroke-width="4"/>`,
+            
+            // Stage 5: Left Leg
+            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="120" x2="60" y2="100" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="120" x2="100" y2="100" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="140" x2="60" y2="160" stroke="#2c3e50" stroke-width="4"/>`,
+            
+            // Stage 6: Right Leg (complete)
+            `<path d="M40,180 L160,180 M140,180 L140,40 M140,40 L80,40 M80,40 L80,60" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <circle cx="80" cy="80" r="20" stroke="#2c3e50" stroke-width="4" fill="none"/>
+             <line x1="80" y1="100" x2="80" y2="140" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="120" x2="60" y2="100" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="120" x2="100" y2="100" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="140" x2="60" y2="160" stroke="#2c3e50" stroke-width="4"/>
+             <line x1="80" y1="140" x2="100" y2="160" stroke="#2c3e50" stroke-width="4"/>
+             <circle cx="75" cy="75" r="2" fill="#2c3e50"/>
+             <circle cx="85" cy="75" r="2" fill="#2c3e50"/>
+             <path d="M70,85 Q80,95 90,85" stroke="#2c3e50" stroke-width="2" fill="none"/>`
+        ];
+        
+        // DOM elements
+        const elements = {
+            hangmanSvg: document.getElementById("hangman-svg"),
+            wordDisplay: document.getElementById("word-display"),
+            lettersContainer: document.getElementById("letters-container"),
+            winMessage: document.getElementById("win-message"),
+            loseMessage: document.getElementById("lose-message"),
+            winWord: document.getElementById("win-word"),
+            loseWord: document.getElementById("lose-word"),
+            winsCounter: document.getElementById("wins-counter"),
+            lossesCounter: document.getElementById("losses-counter"),
+            guessesCounter: document.getElementById("guesses-counter"),
+            subjectSelector: document.getElementById("subject-selector"),
+            subjects: document.getElementById("subjects"),
+            startBtn: document.getElementById("start-btn"),
+            playAgainBtn: document.getElementById("play-again-btn"),
+            tryAgainBtn: document.getElementById("try-again-btn"),
+            newSubjectBtn: document.getElementById("new-subject-btn"),
+            changeSubjectBtn: document.getElementById("change-subject-btn"),
+            musicToggle: document.getElementById("music-toggle"),
+            sfxToggle: document.getElementById("sfx-toggle"),
+            backgroundMusic: document.getElementById("background-music"),
+            correctSound: document.getElementById("correct-sound"),
+            wrongSound: document.getElementById("wrong-sound"),
+            winSound: document.getElementById("win-sound"),
+            loseSound: document.getElementById("lose-sound")
+        };
+        
+        // Initialize the game
+        function initGame() {
+            createAlphabetButtons();
+            updateGameDisplay();
+            
+            // Set initial music state
+            if (gameState.musicEnabled) {
+                elements.backgroundMusic.volume = 0.3;
+                try {
+                    elements.backgroundMusic.play();
+                } catch (e) {
+                    console.log("Autoplay blocked by browser");
+                }
+            }
+            
+            // Event listeners
+            elements.startBtn.addEventListener("click", startGame);
+            elements.playAgainBtn.addEventListener("click", resetGame);
+            elements.tryAgainBtn.addEventListener("click", resetGame);
+            elements.newSubjectBtn.addEventListener("click", showSubjectSelector);
+            elements.changeSubjectBtn.addEventListener("click", showSubjectSelector);
+            
+            // Sound toggle listeners
+            elements.musicToggle.addEventListener("click", toggleMusic);
+            elements.sfxToggle.addEventListener("click", toggleSfx);
+            
+            // Show subject selector initially
+            showSubjectSelector();
+        }
+        
+        // Toggle background music
+        function toggleMusic() {
+            gameState.musicEnabled = !gameState.musicEnabled;
+            elements.musicToggle.classList.toggle("active", gameState.musicEnabled);
+            
+            if (gameState.musicEnabled) {
+                elements.backgroundMusic.play();
+            } else {
+                elements.backgroundMusic.pause();
+            }
+        }
+        
+        // Toggle sound effects
+        function toggleSfx() {
+            gameState.sfxEnabled = !gameState.sfxEnabled;
+            elements.sfxToggle.classList.toggle("active", gameState.sfxEnabled);
+        }
+        
+        // Play sound effect
+        function playSound(sound) {
+            if (!gameState.sfxEnabled) return;
+            
+            try {
+                sound.currentTime = 0;
+                sound.play();
+            } catch (e) {
+                console.log("Error playing sound:", e);
+            }
+        }
+        
+        // Create alphabet buttons
+        function createAlphabetButtons() {
+            elements.lettersContainer.innerHTML = "";
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            
+            for (const letter of alphabet) {
+                const button = document.createElement("button");
+                button.classList.add("letter-btn");
+                button.textContent = letter;
+                button.addEventListener("click", () => handleGuess(letter));
+                elements.lettersContainer.appendChild(button);
+            }
+        }
+        
+        // Start the game
+        function startGame() {
+            gameState.currentSubject = elements.subjects.value;
+            gameState.selectedWord = getRandomWord(gameState.currentSubject);
+            gameState.incorrectGuesses = 0;
+            gameState.guessedLetters = [];
+            gameState.gameActive = true;
+            
+            // Hide subject selector
+            elements.subjectSelector.style.display = "none";
+            
+            // Hide win/lose messages
+            elements.winMessage.style.display = "none";
+            elements.loseMessage.style.display = "none";
+            
+            updateGameDisplay();
+        }
+        
+        // Reset the game
+        function resetGame() {
+            gameState.selectedWord = getRandomWord(gameState.currentSubject);
+            gameState.incorrectGuesses = 0;
+            gameState.guessedLetters = [];
+            gameState.gameActive = true;
+            
+            // Hide win/lose messages
+            elements.winMessage.style.display = "none";
+            elements.loseMessage.style.display = "none";
+            
+            updateGameDisplay();
+        }
+        
+        // Show subject selector
+        function showSubjectSelector() {
+            elements.subjectSelector.style.display = "flex";
+            elements.winMessage.style.display = "none";
+            elements.loseMessage.style.display = "none";
+            gameState.gameActive = false;
+        }
+        
+        // Get a random word from the selected subject
+        function getRandomWord(subject) {
+            const words = wordsBySubject[subject];
+            return words[Math.floor(Math.random() * words.length)];
+        }
+        
+        // Handle a letter guess
+        function handleGuess(letter) {
+            if (!gameState.gameActive || gameState.guessedLetters.includes(letter)) return;
+            
+            gameState.guessedLetters.push(letter);
+            
+            if (!gameState.selectedWord.includes(letter)) {
+                gameState.incorrectGuesses++;
+                playSound(elements.wrongSound);
+            } else {
+                playSound(elements.correctSound);
+            }
+            
+            updateGameDisplay();
+            checkGameStatus();
+        }
+        
+        // Update the game display
+        function updateGameDisplay() {
+            // Update hangman SVG
+            const stage = Math.min(gameState.incorrectGuesses, hangmanStages.length - 1);
+            elements.hangmanSvg.innerHTML = hangmanStages[stage];
+            
+            // Update word display
+            let displayText = "";
+            for (const char of gameState.selectedWord) {
+                if (gameState.guessedLetters.includes(char) || !gameState.gameActive) {
+                    displayText += char + " ";
+                } else {
+                    displayText += "_ ";
+                }
+            }
+            elements.wordDisplay.textContent = displayText.trim();
+            
+            // Update scoreboard
+            elements.winsCounter.textContent = gameState.wins;
+            elements.lossesCounter.textContent = gameState.losses;
+            elements.guessesCounter.textContent = gameState.maxIncorrectGuesses - gameState.incorrectGuesses;
+            
+            // Update letter buttons
+            const letterButtons = elements.lettersContainer.querySelectorAll(".letter-btn");
+            letterButtons.forEach(button => {
+                const letter = button.textContent;
+                if (gameState.guessedLetters.includes(letter)) {
+                    button.disabled = true;
+                    if (gameState.selectedWord.includes(letter)) {
+                        button.style.background = "var(--success)";
+                    } else {
+                        button.style.background = "var(--danger)";
+                    }
+                } else {
+                    button.disabled = !gameState.gameActive;
+                    button.style.background = "";
+                }
+            });
+        }
+        
+        // Check game status
+        function checkGameStatus() {
+            // Check for win
+            const wordGuessed = gameState.selectedWord.split("").every(letter => 
+                gameState.guessedLetters.includes(letter)
+            );
+            
+            if (wordGuessed) {
+                gameState.wins++;
+                elements.winWord.textContent = gameState.selectedWord;
+                elements.winMessage.style.display = "block";
+                gameState.gameActive = false;
+                playSound(elements.winSound);
+                return;
+            }
+            
+            // Check for loss
+            if (gameState.incorrectGuesses >= gameState.maxIncorrectGuesses) {
+                gameState.losses++;
+                elements.loseWord.textContent = gameState.selectedWord;
+                elements.loseMessage.style.display = "block";
+                gameState.gameActive = false;
+                playSound(elements.loseSound);
+            }
+        }
+        
+        // Initialize the game when the page loads
+        window.addEventListener("DOMContentLoaded", initGame);
+    </script>
 </body>
 </html>
